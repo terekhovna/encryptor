@@ -1,4 +1,4 @@
-#!usr/bin/python3
+#!/usr/bin/python3
 # -*- coding: utf-8 -*-
 from myparser import init_parse, parsers
 import vigenere, caesar
@@ -23,11 +23,13 @@ elif args.action == "train":
     finally:
         args.text.close()
         args.model.close()
-else:
+elif args.action == "hack":
     try:
         args.output.write(hacker.hack(args.input.read(), pickle.load(args.model)))
     finally:
         args.input.close()
         args.output.close()
         args.model.close()
+else:
+    parsers["main"].error("Нет такого действия")
 

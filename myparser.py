@@ -56,7 +56,7 @@ def add_hack(subparsers):
 
 
 def add_actions(parser):
-    subparsers = parser.add_subparsers(dest="action", title='Доступные действия', required=True)
+    subparsers = parser.add_subparsers(dest="action", title='Доступные действия')
     add_encode(subparsers)
     add_decode(subparsers)
     add_train(subparsers)
@@ -65,5 +65,6 @@ def add_actions(parser):
 
 def init_parse():
     parser = argparse.ArgumentParser(description="Шифратор")
+    parsers["main"] = parser
     add_actions(parser)
     return parser.parse_args()
