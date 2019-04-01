@@ -1,14 +1,11 @@
-from shiftchar import get_max_module, get_alphabet_name
+from shiftchar import get_lcm_of_modules, get_alphabet_name
+from shiftchar import shift_char, shift_str
 from collections import defaultdict
 
 
-class MyMeta(type):
-    def __call__(cls):
-        return defaultdict(lambda: defaultdict(float))
-
-
-class MyModel(metaclass=MyMeta):
-    pass
+class MyModel(defaultdict):
+    def __new__(cls):
+        return defaultdict(lambda: defaultdict(int))
 
 
 def train(s: str) -> MyModel:
@@ -19,35 +16,45 @@ def train(s: str) -> MyModel:
         count[name] += 1
         rez[name][c.lower()] += 1
     for name, alphabet in rez.items():
-        for c, amount in alphabet.items():
-            alphabet[c] = alphabet[c] / count[name] * 100
-        rez[name] = alphabet
+        for c in alphabet:
+            alphabet[c] = alphabet[c] / count[name]
     return rez
 
 
-def calc(s: str, model: MyModel) -> float:
-    tec = train(s)
+def calculate_delta(first: MyModel, second: MyModel) -> float:
     result_delta = 0
-    keys = tec.keys() | model.keys()
+    keys = first.keys() | second.keys()
     for name in keys:
         delta = 0
-        a = tec[name]
-        b = model[name]
+        a = first[name]
+        b = second[name]
         for c in a.keys() | b.keys():
             delta += (a[c] - b[c]) ** 2
         result_delta += delta ** (1 / len(keys))
     return result_delta
 
 
-def hack(s: str, model_raw: MyModel) -> str:
+def shift_model(model: MyModel) -> MyModel:
+    for name, alphabet in model.items():
+        model[name] = defaultdict(int)
+        model[name].update(
+            {shift_char(c, 1, reverse=True): count 
+            for c, count in alphabet.items()})
+    return model
+
+
+def hack(s: str, model_raw: dict) -> str:
     model = MyModel()
-    model.update(model_raw)
-    import caesar
-    minimal = None
+    model.update(model_raw)    
+    cur_model = train(s)
+
     move = 0
-    for i in range(get_max_module(s)):
-        current = calc(caesar.action("decode", s, i), model)
-        if minimal is None or current < minimal:
-            minimal = current
+    minimal = calculate_delta(cur_model, model)
+    for i in range(1, get_lcm_of_modules(s)):
+        shift_model(cur_model)
+        current = calculate_delta(cur_model, model)
+        if current < minimal:
             move = i
-    return caesar.action("decode", s, move)
+            minimal = current
+
+    return shift_str(s, move, reverse=True)

@@ -1,4 +1,4 @@
-from shiftchar import shift_str_use_str
+from shiftchar import shift_str_use_str, size_alphabet
 
 
 class WrongKey(Exception):
@@ -6,7 +6,7 @@ class WrongKey(Exception):
 
 
 def check_key(s: str):
-    if not s.isalpha():
+    if not all(map(size_alphabet, s)):
         raise WrongKey
 
 

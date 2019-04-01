@@ -31,13 +31,24 @@ def get_char_modulo(s: str, index: int) -> str:
 
 
 def size_alphabet(c: str) -> int:
-    if get_alphabet(c):
-        return len(get_alphabet(c))
-    return 0
+    return len(get_alphabet(c))
 
 
-def get_max_module(s: str) -> int:
-    return max((size_alphabet(c) for c in s))
+def get_lcm_of_modules(s: str) -> int:
+    def lcm(a = 0, *args):
+        if not args:
+            return a
+        b = args[0]
+        if a == 0 or b == 0:
+            lcm_a_b = a or b
+        else:
+            m = a * b
+            while a:
+                b %= a
+                a, b = b, a
+            lcm_a_b = m // b
+        return lcm(lcm_a_b, *args[1:])
+    return lcm(*{size_alphabet(c) for c in s})
 
 
 def shift_char(c: str, key: int, reverse: bool = False) -> str:

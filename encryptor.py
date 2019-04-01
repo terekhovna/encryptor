@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 from myparser import init_parse, parsers
 import vigenere, caesar
-import hacker
+from hacker import hack, train
 import pickle
 
 args = init_parse()
@@ -10,22 +10,23 @@ if args.action in ["encode", "decode"]:
     cipher = globals()[args.cipher]
     parser = parsers[args.action]
     try:
-        args.output.write(cipher.action(args.action, args.input.read(), args.key))
+        result = cipher.action(args.action, args.input.read(), args.key)
+        args.output.write(result)
     except cipher.WrongKey:
-        parser.error("Некоректный ключ!!!")
+        parser.error("Некорректный ключ!!!")
     finally:
         args.input.close()
         args.output.close()
 elif args.action == "train":
     try:
-        data = dict(hacker.train(args.text.read()).items())
+        data = dict(train(args.text.read()).items())
         pickle.dump(data, args.model)
     finally:
         args.text.close()
         args.model.close()
 elif args.action == "hack":
     try:
-        args.output.write(hacker.hack(args.input.read(), pickle.load(args.model)))
+        args.output.write(hack(args.input.read(), pickle.load(args.model)))
     finally:
         args.input.close()
         args.output.close()
