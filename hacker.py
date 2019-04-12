@@ -12,35 +12,26 @@ def train(s: str) -> MyModel:
     rez = MyModel()
     count = defaultdict(int)
     for c in s:
-        name = get_alphabet_name(c)
-        count[name] += 1
-        rez[name][c.lower()] += 1
+        rez[get_alphabet_name(c)][c.lower()] += 1
+    for name in rez.keys():
+        count[name] = sum(rez[name].values())
     for name, alphabet in rez.items():
         for c in alphabet:
             alphabet[c] = alphabet[c] / count[name]
     return rez
 
 
-def calculate_delta(first: MyModel, second: MyModel) -> float:
+def calculate_delta(first: MyModel, second: MyModel, shift: int) -> float:
     result_delta = 0
-    keys = first.keys() | second.keys()
-    for name in keys:
+    alphabets = first.keys() | second.keys()
+    for name in alphabets:
         delta = 0
         a = first[name]
         b = second[name]
-        for c in a.keys() | b.keys():
-            delta += (a[c] - b[c]) ** 2
-        result_delta += delta ** (1 / len(keys))
+        for c in a.keys() | {shift_char(c, shift, reverse=True) for c in b.keys()}:
+            delta += (a[c] - b[shift_char(c, shift)]) ** 2
+        result_delta += delta ** (1 / len(alphabets))
     return result_delta
-
-
-def shift_model(model: MyModel) -> MyModel:
-    for name, alphabet in model.items():
-        model[name] = defaultdict(int)
-        model[name].update(
-            {shift_char(c, 1, reverse=True): count 
-            for c, count in alphabet.items()})
-    return model
 
 
 def hack(s: str, model_raw: dict) -> str:
@@ -49,10 +40,9 @@ def hack(s: str, model_raw: dict) -> str:
     cur_model = train(s)
 
     move = 0
-    minimal = calculate_delta(cur_model, model)
+    minimal = calculate_delta(model, cur_model, 0)
     for i in range(1, get_lcm_of_modules(s)):
-        shift_model(cur_model)
-        current = calculate_delta(cur_model, model)
+        current = calculate_delta(model, cur_model, i)
         if current < minimal:
             move = i
             minimal = current
