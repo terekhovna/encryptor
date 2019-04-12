@@ -11,10 +11,14 @@ class MyModel(defaultdict):
 def train(s: str) -> MyModel:
     rez = MyModel()
     count = defaultdict(int)
-    for c in s:
-        rez[get_alphabet_name(c)][c.lower()] += 1
+
+    from collections import Counter
+    for c, amount in Counter((c.lower() for c in s)).items():
+        rez[get_alphabet_name(c)][c] = amount
+
     for name in rez.keys():
         count[name] = sum(rez[name].values())
+
     for name, alphabet in rez.items():
         for c in alphabet:
             alphabet[c] = alphabet[c] / count[name]
@@ -24,6 +28,7 @@ def train(s: str) -> MyModel:
 def calculate_delta(first: MyModel, second: MyModel, shift: int) -> float:
     result_delta = 0
     alphabets = first.keys() | second.keys()
+
     for name in alphabets:
         delta = 0
         a = first[name]
@@ -31,6 +36,7 @@ def calculate_delta(first: MyModel, second: MyModel, shift: int) -> float:
         for c in a.keys() | {shift_char(c, shift, reverse=True) for c in b.keys()}:
             delta += (a[c] - b[shift_char(c, shift)]) ** 2
         result_delta += delta ** (1 / len(alphabets))
+
     return result_delta
 
 
@@ -41,6 +47,7 @@ def hack(s: str, model_raw: dict) -> str:
 
     move = 0
     minimal = calculate_delta(model, cur_model, 0)
+    
     for i in range(1, get_lcm_of_modules(s)):
         current = calculate_delta(model, cur_model, i)
         if current < minimal:
