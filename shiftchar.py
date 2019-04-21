@@ -64,8 +64,8 @@ def shift_str(s: str, key: int, reverse: bool = False) -> str:
 
 
 def shift_str_use_str(s: str, key: str, reverse: bool = False) -> str:
-    res = ""
+    res = []
     for index, c in enumerate(s):
         shift = get_index(get_char_modulo(key, index))
-        res += shift_char(c, shift, reverse)
-    return res
+        res.append(shift_char(c, shift, reverse))
+    return "".join(res)

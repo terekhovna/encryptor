@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 from myparser import init_parse, parsers
 import vigenere, caesar
-from hacker import hack, train
+from hacker import MyModel
 import pickle
 
 args = init_parse()
@@ -19,14 +19,14 @@ if args.action in ["encode", "decode"]:
         args.output.close()
 elif args.action == "train":
     try:
-        data = dict(train(args.text.read()).items())
+        data = dict(MyModel.train(args.text.read()).items())
         pickle.dump(data, args.model)
     finally:
         args.text.close()
         args.model.close()
 elif args.action == "hack":
     try:
-        args.output.write(hack(args.input.read(), pickle.load(args.model)))
+        args.output.write(MyModel.hack(args.input.read(), pickle.load(args.model)))
     finally:
         args.input.close()
         args.output.close()
